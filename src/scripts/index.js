@@ -1,4 +1,9 @@
-import { createCardElement, deleteCard, likeCard } from "./components/card.js";
+import {
+    createCardElement,
+    deleteCard,
+    isCardLiked,
+    updateLikeView,
+} from "./components/card.js";
 import { openModalWindow, closeModalWindow, setCloseModalWindowEventListeners } from "./components/modal.js";
 import { enableValidation, clearValidation } from "./components/validation.js";
 import { 
@@ -42,9 +47,6 @@ const cardInfoModalTitle = cardInfoModalWindow.querySelector(".popup__title");
 const cardInfoModalInfoList = cardInfoModalWindow.querySelector(".popup__info");
 const cardInfoModalText = cardInfoModalWindow.querySelector(".popup__text");
 const cardInfoModalList = cardInfoModalWindow.querySelector(".popup__list");
-
-const removeCardModalWindow = document.querySelector(".popup_type_remove-card");
-const removeCardForm = removeCardModalWindow ? removeCardModalWindow.querySelector(".popup__form") : null;
 
 // Настройки валидации
 const validationSettings = {
@@ -133,7 +135,6 @@ const handleCardFormSubmit = (evt) => {
       );
       closeModalWindow(cardFormModalWindow);
       cardForm.reset();
-      clearValidation(cardForm, validationSettings);
     })
     .catch((err) => {
       console.log(err);
@@ -205,27 +206,26 @@ Promise.all([getCardList(), getUserInfo()])
     console.log(err);
   });
 
-  const handleDeleteCard = (cardID, cardElement) => {
-  deleteCardApi(cardID)
-    .then(() => {
-      cardElement.remove();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+const handleDeleteCard = (cardID, cardElement) => {
+    deleteCardApi(cardID)
+        .then(() => {
+            deleteCard(cardElement);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 };
 
 const handleLikeClick = (cardID, cardElement, likeButton) => {
-  const isLiked = likeButton.classList.contains("card__like-button_is-active");
-  
-  changeLikeCardStatus(cardID, isLiked)
-    .then((cardData) => {
-      likeButton.classList.toggle("card__like-button_is-active");
-      cardElement.querySelector(".card__like-count").textContent = cardData.likes.length;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    const isLiked = isCardLiked(likeButton);
+
+    changeLikeCardStatus(cardID, isLiked)
+        .then((cardData) => {
+            updateLikeView(cardElement, likeButton, cardData.likes);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 };
 
 const formatDate = (date) =>
@@ -308,7 +308,3 @@ const handleInfoClick = (cardId) => {
       console.log(err);
     });
 };
-
-allPopups.forEach((popup) => {
-  setCloseModalWindowEventListeners(popup);
-});

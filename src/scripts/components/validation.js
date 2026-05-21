@@ -16,39 +16,24 @@ const hideInputError = (formElement, inputElement, settings) => {
 
 
 const checkInputValidity = (formElement, inputElement, settings) => {
-  if (inputElement.hasAttribute('data-error-message')) {
-    const regex = /^[a-zA-Zа-яА-ЯёЁ\s\-]+$/;
-    const value = inputElement.value;
-    
-    if (value && !regex.test(value)) {
-      showInputError(
-        formElement, 
-        inputElement, 
-        inputElement.dataset.errorMessage, 
-        settings
-      );
-      return false;
-    }
-  }
-
   if (inputElement.validity.patternMismatch) {
     const message = inputElement.dataset.errorMessage || inputElement.validationMessage;
     showInputError(formElement, inputElement, message, settings);
     return false;
   }
-  
+
   if (!inputElement.validity.valid) {
     showInputError(
-      formElement, 
-      inputElement, 
-      inputElement.validationMessage, 
-      settings
+        formElement,
+        inputElement,
+        inputElement.validationMessage,
+        settings
     );
     return false;
-  } else {
-    hideInputError(formElement, inputElement, settings);
-    return true;
   }
+
+  hideInputError(formElement, inputElement, settings);
+  return true;
 };
 
 // Проверяет, есть ли невалидные поля в форме
@@ -73,14 +58,8 @@ const enableSubmitButton = (buttonElement, settings) => {
 // Переключает состояние кнопки
 const toggleButtonState = (inputList, buttonElement, settings) => {
   const hasErrors = hasInvalidInput(inputList);
-  const allRequiredFilled = inputList.every(input => {
-    if (input.required) {
-      return input.value.trim() !== '';
-    }
-    return true;
-  });
-  
-  if (!hasErrors && allRequiredFilled) {
+
+  if (!hasErrors) {
     enableSubmitButton(buttonElement, settings);
   } else {
     disableSubmitButton(buttonElement, settings);

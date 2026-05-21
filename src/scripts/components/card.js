@@ -6,6 +6,16 @@ export const deleteCard = (cardElement) => {
   cardElement.remove();
 };
 
+export const isCardLiked = (likeButton) => {
+  return likeButton.classList.contains("card__like-button_is-active");
+};
+
+export const updateLikeView = (cardElement, likeButton, likes) => {
+  likeButton.classList.toggle("card__like-button_is-active");
+  const likeCountElement = cardElement.querySelector(".card__like-count");
+  likeCountElement.textContent = likes.length;
+};
+
 const getTemplate = () => {
   return document
     .getElementById("card-template")
